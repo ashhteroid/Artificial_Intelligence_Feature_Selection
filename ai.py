@@ -53,6 +53,51 @@ def norm(dataset):
 	return newset
 
 
+def euclidean_distance(record1, record2, fset):
+	dis = 0
+	for i in range(len(record1)):
+		if i=0 or fset[i]==False:
+			continue
+		else:
+			dis += pow((record1[i] - record2[i]), 2)
+	return math.sqrt(dis)
+
+def accuracy(norm, predictions):
+	correct = 0
+	for i in range(len(norm)):
+		if norm[i][0] == predictions[i]:
+			correct += 1
+	return (correct/float(len(testSet))) * 100.0
+
+def loocv(norm,fset):
+	predictions=list()
+	for test in norm:
+		mindis=float("inf")
+		for train in norm:
+			if train==test:
+				continue
+			dis=euclidean_distance(test,train,fset)
+			if(dis<mindis):
+				mindis=dis
+				prediction=train[0]
+		predictions.append(prediction)
+
+	return accuracy(norm,predictions)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
