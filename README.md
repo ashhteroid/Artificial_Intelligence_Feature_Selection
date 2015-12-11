@@ -2,7 +2,9 @@ Python Implementation of the following three feature selection algorithms:
 
 
 1.Forward Selection
+
 2.Backward Eliminaton
+
 3.Forward Selection with Random Subsampling.
 
 
@@ -10,6 +12,7 @@ How to Compile:
 
 
 1.Place the Large and Small Dataset in the same folder as the script.
+
 2.Run the Script
 
 
