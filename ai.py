@@ -1,3 +1,12 @@
+'''  
+=================================================================
+	@version  1.0
+	@author   Ashwin Ramadevanahalli
+	@title    Artificial Intelligence- Feature selection.
+
+=================================================================
+'''
+
 import math
 import random
 
@@ -206,15 +215,17 @@ def forward_selection_subsampling(norm):
 
 if __name__ == "__main__":
 	
+
+	print "Welcome to Ashwin Ramadevanahalli's Feature Selection Algorithm."
 	dataset=get_data()
 	normdataset=norm(dataset)
-no_features=len(normdataset[0])
+	no_features=len(normdataset[0])
 
-fset=[]
-for i in range(len(normdataset[0])):
-	if i==0:
-		fset.append(False)
-	fset.append(True)
+	fset=[]
+	for i in range(len(normdataset[0])):
+		if i==0:
+			fset.append(False)
+		fset.append(True)
 
 print forward_selection(normdataset)
 print backward_selection(normdataset)
