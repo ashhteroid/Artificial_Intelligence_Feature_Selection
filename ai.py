@@ -1,6 +1,6 @@
 '''  
 =================================================================
-	@version  1.0
+	@version  2.0
 	@author   Ashwin Ramadevanahalli
 	@title    Artificial Intelligence- Feature selection.
 
@@ -8,14 +8,13 @@
 '''
 
 import math
+import time
 import random
 
 
 
-
-def get_data():
-	with open("/Users/Ashwin/Downloads/cs_170_smallALL/cs_170_small46.txt") as input_file:
-	# with open("/Users/Ashwin/Downloads/cs_170_largeALL/cs_170_large46.txt") as input_file:
+def get_data(filename):
+	with open(filename) as input_file:
 		dataset=[]
 		for line in input_file:
 			line = line.strip()
@@ -96,6 +95,7 @@ def forward_selection(norm):
 	temp_fselected=list()
 	fselected=list()
 	max_accu=0
+	flag=False
 	for i in range(no_features):
 		if i==0:
 			temp_fset.append(True)
@@ -118,9 +118,15 @@ def forward_selection(norm):
 
 		temp_fset[inner_index]=True
 		temp_fselected.append(inner_index)
+
 		if(accuracy<inner_accu):
 			accuracy=inner_accu
 			max_index=inner_index
+		else:
+			if(flag):
+				print "(Warning, Accuracy has not increased! Continuing search in case of local maxima)"
+			flag=True
+		print "Using feature(s) ",temp_fselected," accuracy is ",inner_accu," %"
 	for l in temp_fselected:
 		fselected.append(l)
 		if l==max_index:
@@ -136,6 +142,7 @@ def backward_selection(norm):
 	fselected=list()
 	temp_fselected=list()
 	istack=[]
+	flag=False
 
 	for i in range(no_features):
 		if i==0:
@@ -143,7 +150,7 @@ def backward_selection(norm):
 		temp_fset.append(True)
 		temp_fselected.append(i)
 		fselected.append(i)
-	for j in range(no_features):
+	for j in range(no_features-1):
 		if j==0:
 			fselected.remove(0)
 			temp_fselected.remove(0)
@@ -168,6 +175,12 @@ def backward_selection(norm):
 		if(accuracy<inner_accu):
 			accuracy=inner_accu
 			max_index=inner_index
+		else:
+			if(flag):
+				print "(Warning, Accuracy has not increased! Continuing search in case of local maxima)"
+			flag=True
+
+		print "Using feature(s) ",temp_fselected," accuracy is ",inner_accu," %"
 	
 	for l in istack:
 		
@@ -183,6 +196,7 @@ def forward_selection_subsampling(norm):
 	temp_fselected=list()
 	fselected=list()
 	max_accu=0
+	flag=False
 	for i in range(no_features):
 		if i==0:
 			temp_fset.append(True)
@@ -192,7 +206,10 @@ def forward_selection_subsampling(norm):
 			continue
 		inner_accu=0
 		inner_index=0
-		fsample=random.sample(range(1,no_features),int(math.sqrt(no_features)))
+		no_samples=int(math.sqrt(no_features))
+		if no_samples<1:
+			no_samples=1
+		fsample=random.sample(range(1,no_features),no_samples)
 		for k in fsample:
 			if(not temp_fset[k]):
 				temp_fset[k]=True
@@ -207,6 +224,11 @@ def forward_selection_subsampling(norm):
 		if(accuracy<inner_accu):
 			accuracy=inner_accu
 			max_index=inner_index
+		else:
+			if(flag):
+				print "(Warning, Accuracy has not increased! Continuing search in case of local maxima)"
+			flag=True
+		print "Using feature(s) ",temp_fselected," accuracy is ",inner_accu," %"
 	for l in temp_fselected:
 		fselected.append(l)
 		if l==max_index:
@@ -216,17 +238,49 @@ def forward_selection_subsampling(norm):
 if __name__ == "__main__":
 	
 
-	print "Welcome to Ashwin Ramadevanahalli's Feature Selection Algorithm."
-	dataset=get_data()
+	print "\nWelcome to Ashwin Ramadevanahalli's Feature Selection Algorithm.\n"
+	filename=raw_input("Type the link of the file to test:")
+	option=raw_input("\nChoose the algorithm you want to run.\n\n1.Forward Selection.\n2.Backward Selection.\n3.Ashwin's Special Algorithm.\n4.All the above.\n")
+	print "Fetching and Normalizing data,please wait......\n"
+	dataset=get_data(filename)
 	normdataset=norm(dataset)
+	print "\nDone\n"
 	no_features=len(normdataset[0])
-
+	no_records=len(normdataset)
+	print "The datasethas ",(no_features-1)," features with ",no_records," number of instances."
 	fset=[]
 	for i in range(len(normdataset[0])):
 		if i==0:
 			fset.append(False)
 		fset.append(True)
+	print "Running nearest neighbor with all ",(no_features-1)," features, using 'leaving-one-out' evaluation, I get an accuracy of ",loocv(normdataset,fset)," % \n"
+	
+	if(option=="1" or option=="4"):
+		print "Beginning Forward Selection"
+		stime=time.time()
+		Accu,sset=forward_selection(normdataset)
+		f_time=time.time()-stime
+		print "\nFeature set: ",sset," was best with accuracy:",Accu,"%\n"
+	if(option=="2" or option=="4"):
+		stime=time.time()
+		print "Beginning Backward Selection"
+		Accu,sset=backward_selection(normdataset)
+		b_time=time.time()-stime
+		print "\nFeature set: ",sset," was best with accuracy:",Accu,"%\n"
+	if(option=="3" or option=="4"):
+		stime=time.time()
+		print "Beginning Ashwin's Special Selection Algorithm."
+		Accu,sset=forward_selection_subsampling(normdataset)
+		a_time=time.time()-stime
+		print "\nFeature set: ",sset," was best with accuracy:",Accu,"%\n"
+	
+	if(option=="1" or option=="4"):
+		print ("\nTime required for forward selection: %s\n" %f_time)
+	if(option=="2" or option=="4"):
+		print ("\nTime required for backward selection: %s\n" %b_time)
+	if(option=="3" or option=="4"):
+		print ("\nTime required for Ashwin selection: %s\n" %a_time)
+	print "\n\nThank you.\n\n"
 
-print forward_selection(normdataset)
-print backward_selection(normdataset)
-print forward_selection_subsampling(normdataset)
+
+
