@@ -136,7 +136,7 @@ def forward_selection(norm):
 		
 	return accuracy, fselected
 
-def backward_selection(norm):
+def backward_elimination(norm):
 	temp_fset=list()
 	accuracy=0
 	fselected=list()
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 	if(option=="2" or option=="4"):
 		stime=time.time()
 		print "Beginning Backward Selection"
-		Accu,sset=backward_selection(normdataset)
+		Accu,sset=backward_elimination(normdataset)
 		b_time=time.time()-stime
 		print "\nFeature set: ",sset," was best with accuracy:",Accu,"%\n"
 	if(option=="3" or option=="4"):
