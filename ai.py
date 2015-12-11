@@ -5,7 +5,7 @@ dataset=[]
 normdataset=[]
 
 def get_data():
-	with open("/Users/Ashwin/Downloads/cs_170_smallALL/cs_170_small42.txt") as input_file:
+	with open("/Users/Ashwin/Downloads/cs_170_smallALL/cs_170_small46.txt") as input_file:
 		for line in input_file:
 			line = line.strip()
 			record=list()
@@ -86,9 +86,11 @@ def loocv(norm,fset):
 
 
 def forward_selection(norm):
-	temp_fset=[]
+	temp_fset=list()
 	accuracy=0
-	fselected=[]
+	temp_fselected=list()
+	fselected=list()
+	max_accu=0
 	for i in range(len(norm[0])):
 		if i==0:
 			temp_fset.append(True)
@@ -98,6 +100,7 @@ def forward_selection(norm):
 			continue
 		inner_accu=0
 		inner_index=0
+		print "Level:"+str(j)
 		for k in range(len(norm[0])):
 			if k==0:
 				continue
@@ -107,17 +110,75 @@ def forward_selection(norm):
 				if(lol>inner_accu):
 					inner_accu=lol
 					inner_index=k
+					print "inner Ac:"+str(inner_accu)+" and index:"+str(inner_index)
 				temp_fset[k]=False
 
+		temp_fset[inner_index]=True
+		temp_fselected.append(inner_index)
+		if(accuracy<inner_accu):
+			accuracy=inner_accu
+			max_index=inner_index
+	for l in temp_fselected:
+		fselected.append(l)
+		if l==max_index:
+				break
+
+			
+		
+	return accuracy, fselected
+
+def backward_selection(norm):
+	temp_fset=list()
+	accuracy=0
+	fselected=list()
+	temp_fselected=list()
+	istack=[]
+
+	for i in range(len(norm[0])):
+		if i==0:
+			temp_fset.append(False)
+		temp_fset.append(True)
+		temp_fselected.append(i)
+		fselected.append(i)
+	for j in range(len(norm[0])):
+		if j==0:
+			fselected.remove(0)
+			temp_fselected.remove(0)
+			continue
+		inner_accu=0
+		inner_index=0
+		print "Level:"+str(j)
+		for k in range(len(norm[0])):
+			if k==0:
+				continue
+			if(temp_fset[k]):
+				temp_fset[k]=False
+				lol=loocv(norm,temp_fset)
+				print "Examining index:"+str(k)+" Accu:"+str(lol)
+				if(lol>inner_accu):
+					inner_accu=lol
+					inner_index=k
+					print "inner Ac:"+str(inner_accu)+" and index:"+str(inner_index)
+				temp_fset[k]=True
+
+		temp_fset[inner_index]=False
+		print temp_fselected
+		temp_fselected.remove(inner_index)
+		print temp_fselected
+		istack.append(inner_index)
 
 		if(accuracy<inner_accu):
 			accuracy=inner_accu
-			fselected.append(inner_index)
-			temp_fset[inner_index]=True
-		else:
-			break
+			max_index=inner_index
+	
+	for l in istack:
+		
+		if str(l)==str(max_index):
+				print "lol"
+				break
+		fselected.remove(l)
+	
 	return accuracy, fselected
-
 
 
 dataset=get_data()
@@ -131,4 +192,5 @@ for i in range(len(normdataset[0])):
 	fset.append(True)
 
 print forward_selection(normdataset)
+print backward_selection(normdataset)
 
